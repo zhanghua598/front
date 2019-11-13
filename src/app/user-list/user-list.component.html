@@ -1,0 +1,238 @@
+<div class="main">
+<mat-tab-group (selectedTabChange)="selectCourseClick($event)">
+  <mat-tab label="Courses">
+      <div *ngIf="showCourse;else show_courses">
+          <mat-spinner class="spinner"></mat-spinner>
+        </div>
+
+        <ng-template #show_courses>
+            <mat-grid-list cols="3" rowHeight="3:2">
+            <mat-grid-tile colspan=1 rowspan=1 *ngFor="let course of courses | filter:searchText">
+          <mat-card class="course-card mat-elevation-z10">
+            <mat-card-header>
+              <div mat-card-avatar
+              [ngStyle]="{'background-image': 'url(assets/images/heroes/' + course.id + '-thumbnail.jpg)', 'background-size':'cover'}"></div>
+              <mat-card-title><span class="label">Skill: </span>{{course.skill}}</mat-card-title>
+              <mat-card-subtitle><span class="label">Course Name: </span>{{ course.name }}</mat-card-subtitle>
+              <span class="mat-header-spacer"></span>
+              <div *ngIf="userRole === 'user'">
+              <button [disabled]="loading" mat-icon-button color="primary" (click)="book(course.id, course.mentorName,course.startDate,course.endDate,course.fee)">
+                  <mat-icon style="font-size: 40px">add</mat-icon>
+                </button>
+              </div>
+            </mat-card-header>
+            <mat-card-content>
+                <mat-grid-list cols="2" rows="3" rowHeight="30px">
+                    <mat-grid-tile colspan=1 rowspan=1>
+                        <div class="text-inside-grid">
+                      <span class="label">Start Date: </span>{{course.startDate | date}}
+                      </div>
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                        <div class="text-inside-grid">
+                        <span class="label">Fee: </span><span>$</span>{{course.fee}}
+                        </div>
+                      </mat-grid-tile>
+                      <mat-grid-tile colspan=1 rowspan=1>
+                          <div class="text-inside-grid">
+                          <span class="label">End Date: </span>{{course.endDate | date}}
+                          </div>
+                        </mat-grid-tile>
+                      <mat-grid-tile>
+                          <div class="text-inside-grid">
+                              <span class="label">Duration: </span>{{course.duration}}
+                              </div>
+                        </mat-grid-tile>
+
+                        <mat-grid-tile colspan=2 rowspan=1>
+                            <div class="text-inside-grid">
+                            <span class="label">Description: </span>{{course.description}}
+                          </div>
+                          </mat-grid-tile>
+                  </mat-grid-list>
+            </mat-card-content>
+            <mat-card-actions>
+                <mat-grid-list cols="3" rows="1" rowHeight="40px">
+                    <mat-grid-tile colspan=2 rowspan=1>
+                        <div class="text-inside-grid">
+                            <span class="label">Mentor:</span>{{ course.mentorName}}
+                          </div>
+                      </mat-grid-tile>
+                      <mat-grid-tile colspan=1 rowspan=1>
+                          <span class="action-spacer"></span>
+                          <div *ngIf="course.rate > 0" class="course-actions">
+                            <button mat-icon-button color="accent">
+                                <mat-icon matBadge={{course.rate}} matBadgeColor="warn" matBadgeSize="small">star</mat-icon>
+                              </button>
+                            </div>
+                        </mat-grid-tile>
+                  </mat-grid-list>
+            </mat-card-actions>
+          </mat-card>
+        </mat-grid-tile>
+        </mat-grid-list>
+        </ng-template>
+     </mat-tab>
+  <mat-tab label="In Progress">
+      <div *ngIf="showInProgressCourse;else show_inprogresscourses">
+          <mat-spinner class="spinner"></mat-spinner>
+        </div>
+
+        <ng-template #show_inprogresscourses>
+            <mat-grid-list cols="3" rowHeight="3:2">
+            <mat-grid-tile colspan=1 rowspan=1 *ngFor="let usercourse of userCourses | filter:searchText">
+          <mat-card class="course-card mat-elevation-z10">
+            <mat-card-header [ngStyle]="{'background-color': getStatusColor(usercourse.status)}" class="mat-card-inprogress-header">
+              <div mat-card-avatar
+              [ngStyle]="{'background-image': 'url(assets/images/heroes/' + usercourse.id + '-thumbnail.jpg)', 'background-size':'cover'}"></div>
+              <mat-card-title><span class="label">Skill: </span>{{usercourse.skill}}</mat-card-title>
+              <mat-card-subtitle><span class="label">Course Name: </span>{{ usercourse.name }}</mat-card-subtitle>
+              <span class="mat-header-spacer"></span>
+              <span class="rotate">{{usercourse.status}}</span>
+            </mat-card-header>
+            <mat-card-content>
+                <mat-grid-list cols="4" rows="3" rowHeight="30px">
+                    <mat-grid-tile colspan=1 rowspan=1>
+                        <div class="text-inside-grid">
+                      <span class="label">Start Date: </span>
+                      </div>
+                    </mat-grid-tile>
+                    <mat-grid-tile colspan=1 rowspan=1>
+                        <div class="text-inside-grid">
+                      {{usercourse.startDate | date}}
+                      </div>
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                        <div class="text-inside-grid">
+                        <span class="label">Fee: </span>
+                        </div>
+                      </mat-grid-tile>
+                      <mat-grid-tile>
+                          <div class="text-inside-grid">
+                          <span>$</span>{{usercourse.fee}}
+                          </div>
+                        </mat-grid-tile>
+                      <mat-grid-tile colspan=1 rowspan=1>
+                          <div class="text-inside-grid">
+                          <span class="label">End Date: </span>
+                          </div>
+                        </mat-grid-tile>
+                        <mat-grid-tile colspan=1 rowspan=1>
+                            <div class="text-inside-grid">
+                            {{usercourse.endDate | date}}
+                            </div>
+                          </mat-grid-tile>
+                      <mat-grid-tile colspan=1 rowspan=1>
+                          <div class="text-inside-grid">
+                              <span class="label">Schedule: </span>
+                              </div>
+                        </mat-grid-tile>
+                        <mat-grid-tile colspan=1 rowspan=1>
+                              <mat-progress-bar mode="determinate" value={{usercourse.schedule}}></mat-progress-bar>
+                          </mat-grid-tile>
+
+                        <mat-grid-tile colspan=1 rowspan=1>
+                            <div class="text-inside-grid">
+                            <span class="label">Description: </span>
+                          </div>
+                          </mat-grid-tile>
+                          <mat-grid-tile colspan=3 rowspan=1>
+                              <div class="text-inside-grid">
+                              {{usercourse.description}}
+                            </div>
+                            </mat-grid-tile>
+                  </mat-grid-list>
+            </mat-card-content>
+            <mat-card-actions>
+                <mat-grid-list cols="3" rows="1" rowHeight="40px">
+                    <mat-grid-tile colspan=2 rowspan=1>
+                        <div class="text-inside-grid">
+                            <span class="label">Mentor:</span>{{ usercourse.mentorName}}
+                          </div>
+                      </mat-grid-tile>
+                      <mat-grid-tile colspan=1 rowspan=1>
+                        <div class="text-inside-grid">
+                            <span class="label">Cost:</span><span>$</span>{{ usercourse.cost}}
+                          </div>
+                        </mat-grid-tile>
+                  </mat-grid-list>
+            </mat-card-actions>
+          </mat-card>
+        </mat-grid-tile>
+        </mat-grid-list>
+        </ng-template>
+
+  </mat-tab>
+  <mat-tab label="Completed">
+      <div *ngIf="showInCompletedProgressCourse;else showcompletecourses">
+          <mat-spinner class="spinner"></mat-spinner>
+        </div>
+
+        <ng-template #showcompletecourses>
+            <mat-grid-list cols="3" rowHeight="3:2">
+            <mat-grid-tile colspan=1 rowspan=1 *ngFor="let usercompletedcourse of userCompletedCourses | filter:searchText">
+          <mat-card class="course-card mat-elevation-z10">
+            <mat-card-header>
+              <div mat-card-avatar
+              [ngStyle]="{'background-image': 'url(assets/images/heroes/' + usercompletedcourse.id + '-thumbnail.jpg)', 'background-size':'cover'}"></div>
+              <mat-card-title><span class="label">Skill: </span>{{usercompletedcourse.skill}}</mat-card-title>
+              <mat-card-subtitle><span class="label">Course Name: </span>{{ usercompletedcourse.name }}</mat-card-subtitle>
+              <span class="mat-header-spacer"></span>
+            </mat-card-header>
+            <mat-card-content>
+                <mat-grid-list cols="2" rows="3" rowHeight="30px">
+                    <mat-grid-tile colspan=1 rowspan=1>
+                        <div class="text-inside-grid">
+                      <span class="label">Start Date: </span>{{usercompletedcourse.startDate | date}}
+                      </div>
+                    </mat-grid-tile>
+                    <mat-grid-tile>
+                        <div class="text-inside-grid">
+                        <span class="label">Cost: </span><span>$</span>{{usercompletedcourse.fee}}
+                        </div>
+                      </mat-grid-tile>
+                      <mat-grid-tile colspan=1 rowspan=1>
+                          <div class="text-inside-grid">
+                          <span class="label">End Date: </span>{{usercompletedcourse.endDate | date}}
+                          </div>
+                        </mat-grid-tile>
+                      <mat-grid-tile>
+                          <div class="text-inside-grid">
+                              <span class="label">Duration: </span>{{usercompletedcourse.duration}}
+                              </div>
+                        </mat-grid-tile>
+
+                        <mat-grid-tile colspan=2 rowspan=1>
+                            <div class="text-inside-grid">
+                            <span class="label">Description: </span>{{usercompletedcourse.description}}
+                          </div>
+                          </mat-grid-tile>
+                  </mat-grid-list>
+            </mat-card-content>
+            <mat-card-actions>
+                <mat-grid-list cols="4" rows="1" rowHeight="40px">
+                    <mat-grid-tile colspan=2 rowspan=1>
+                        <div class="text-inside-grid">
+                            <span class="label">Mentor:</span>{{ usercompletedcourse.mentorName}}
+                          </div>
+                      </mat-grid-tile>
+                      <mat-grid-tile colspan=1 rowspan=1>
+                           <div class="course-actions">
+                                  <button [disabled]='votecourse' mat-icon-button color="accent" (click)="vote(usercompletedcourse.id)">
+                                      <mat-icon matBadge={{rateCount}} matBadgeColor="warn" matBadgeSize="small">star</mat-icon>
+                                    </button>
+                                  </div>
+                        </mat-grid-tile>
+                        <mat-grid-tile colspan=1 rowspan=1>
+                            <button mat-icon-button color="primary" [disabled]="rateplus" (click)="ratePlus()"><mat-icon>add</mat-icon></button>
+                            <button mat-icon-button color="primary" [disabled]="rateminus" (click)="rateMinus()"><mat-icon>remove</mat-icon></button>
+                         </mat-grid-tile>
+                  </mat-grid-list>
+            </mat-card-actions>
+          </mat-card>
+        </mat-grid-tile>
+        </mat-grid-list>
+        </ng-template>
+     </mat-tab>
+</mat-tab-group>
+</div>
